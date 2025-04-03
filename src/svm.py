@@ -66,8 +66,11 @@ if __name__ == "__main__":
     X_test = np.array(real_face_test_images + style_gan_test_images + firefly_test_images)
     y_test = np.array(real_face_test_labels + style_gan_test_labels + firefly_test_labels)
 
-    linear_svm = SVC(kernel='linear', C=10.0)
-    rbf_svm = SVC(kernel='rbf', C=10.0, gamma=0.001)
+    linear_svm = SVC(kernel='linear', C=100.0)
+    if cfg.feature == "hog":
+        rbf_svm = SVC(kernel='rbf', C=100.0, gamma=0.001)
+    else:
+        rbf_svm = SVC(kernel='rbf', C=100.0, gamma=0.0001)
 
     # Train and evaluate Linear SVM
     linear_svm.fit(X_train, y_train)
