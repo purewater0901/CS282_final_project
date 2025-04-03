@@ -21,8 +21,8 @@ unzip <path_to_downloaded_zip>
 
 > ⚠️ Make sure you have downloaded the dataset as described above before running the code.
 
-
 ### 1. Environment Setup
+
 ```bash
 conda create -n cs282 python=3.10 pip
 conda activate cs282
