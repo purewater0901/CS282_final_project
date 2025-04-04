@@ -26,7 +26,7 @@ unzip <path_to_downloaded_zip>
 ```bash
 conda create -n cs282 python=3.10 pip
 conda activate cs282
-pip install scikit-learn numpy pandas opencv-python pillow matplotlib scikit-image wandb IPython
+pip install scikit-learn numpy pandas opencv-python pillow matplotlib scikit-image wandb IPython kaggle
 pip install torch torchvision torchaudio
 pip install timm
 ```
