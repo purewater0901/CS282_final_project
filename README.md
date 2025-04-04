@@ -31,9 +31,10 @@ pip install scikit-learn numpy opencv-python pillow matplotlib scikit-image
 
 ### 2. Running code
 
-- SVM
+- Classical machine learning approach (K-Nearest, SVM, Random Forest)
 
 ```bash
-cd CS282_final_project
-python src/svm.py
+python src/non_deep_learning/ml_baselines.py --feature=<feature>
 ```
+
+Here `<feature>` can be `flatten` or `hog`. We set `flatten` as a default value in this problem.
