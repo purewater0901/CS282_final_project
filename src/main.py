@@ -9,6 +9,11 @@ from utils.config_parser import parse_cfg
 
 torch.set_float32_matmul_precision("high")
 
+TUNER_CLASSES = {
+    "FrozenFT": FrozenFT,
+    "FullFT": FullFT,
+}
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, required=True)
@@ -49,13 +54,10 @@ if __name__ == "__main__":
         "processor": preprocess if preprocess is not None else None,
     }
 
-    tuner = None
-    if cfg.tuning_type == "FrozenFT":
-        tuner = FrozenFT(**config)
-    elif cfg.tuning_type == "FullFT":
-        tuner = FullFT(**config)
-    else:
-        raise ValueError(f"Unsupported tuning type: {cfg.tuning_type}.")
+    tuner_cls = TUNER_CLASSES.get(cfg.tuning_type)
+    if tuner_cls is None:
+        raise ValueError(f"Unsupported Tuning Type: {cfg.tuning_type}")
+    tuner = tuner_cls(**config)
 
     tuner.set_TestFolder('firefly_split')
     tuned_model = tuner.Experiment(wandb_run_name='swin_large_C1')
