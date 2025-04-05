@@ -1,0 +1,8 @@
+"tuning_type": "FrozenFT"
+"model_name": "deep_fake_detection"
+"real_folder": "Real_split"
+"fake_folder": "StyleGAN_split"
+"num_epochs": 1
+"batch_size": 16
+"learning_rate": None
+"use_wandb": False

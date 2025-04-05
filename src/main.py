@@ -1,43 +1,61 @@
 import os
 import torch
-from PIL import Image
 from transformers import CLIPProcessor
+import argparse
 
+from deep_learning.full_fine_tuner import FullFT
 from deep_learning.frozen_fine_tuner import FrozenFT
-
-DEVICE = "cuda:0"
+from utils.config_parser import parse_cfg
 
 torch.set_float32_matmul_precision("high")
 
 if __name__ == "__main__":
-    # Check if weights/model.torchscript exists, if not, download it from huggingface
-    model_file = "weights/model.torchscript"
-    model_path = os.path.join(os.getcwd(), model_file)
-    if not os.path.exists(model_path):
-        print("Downloading model")
-        os.makedirs("weights", exist_ok=True)
-        os.system(f"wget https://huggingface.co/yermandy/deepfake-detection/resolve/main/model.torchscript -O {model_path}")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", type=str, required=True)
+    parser.add_argument("--device", default="cuda:0", type=str)
+    cfg = parser.parse_args()
+    cfg = parse_cfg(cfg, cfg.config)
+    cfg.device = cfg.device if torch.cuda.is_available() else "cpu"
 
-    # Load checkpoint
-    model = torch.jit.load(model_path, map_location=DEVICE)
+    # sets model if necessary
+    model = None
+    preprocess = None
+    if cfg.model_name == "deep_fake_detection":
+        # Check if weights/model.torchscript exists, if not, download it from huggingface
+        model_file = "weights/model.torchscript"
+        model_path = os.path.join(os.getcwd(), model_file)
+        if not os.path.exists(model_path):
+            print("Downloading model")
+            os.makedirs("weights", exist_ok=True)
+            os.system(f"wget https://huggingface.co/yermandy/deepfake-detection/resolve/main/model.torchscript -O {model_path}")
 
-    # Load preprocessing function
-    preprocess = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
+        # Load checkpoint
+        model = torch.jit.load(model_path, map_location=cfg.device)
+
+        # Load preprocessing function
+        preprocess = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
 
     # create config
     config = {
-        "model_name": "deep_fake_detection",  #'swin_large_patch4_window7_224.ms_in22k',#'vit_base_patch16_clip_224.openai', #'swinv2_cr_tiny_ns_224.sw_in1k', #'xception', #'vit_base_patch16_clip_224.openai',
+        "model_name": cfg.model_name,
         "data_dir": os.path.join(os.getcwd(), "data"),  # Ensure the data directory is correct
         "real_folder": "Real_split",
         "fake_folder": "StyleGAN_split",
-        "num_epochs": 1,
-        "batch_size": 16,
-        "learning_rate": None,
-        "use_wandb": False,
-        "model": model,
-        "processor": preprocess,
+        "num_epochs": cfg.num_epochs,
+        "batch_size": cfg.batch_size,
+        "learning_rate": cfg.learning_rate,
+        "use_wandb": cfg.use_wandb,
+        "model": model if model is not None else None,
+        "processor": preprocess if preprocess is not None else None,
     }
 
-    FullFineTuner = FrozenFT(**config)
-    FullFineTuner.set_TestFolder('firefly_split')
-    tuned_model = FullFineTuner.Experiment(wandb_run_name='swin_large_C1')
+    tuner = None
+    if cfg.tuning_type == "FrozenFT":
+        tuner = FrozenFT(**config)
+    elif cfg.tuning_type == "FullFT":
+        tuner = FullFT(**config)
+    else:
+        raise ValueError(f"Unsupported tuning type: {cfg.tuning_type}.")
+
+    tuner.set_TestFolder('firefly_split')
+    tuned_model = tuner.Experiment(wandb_run_name='swin_large_C1')
