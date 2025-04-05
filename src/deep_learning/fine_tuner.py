@@ -233,7 +233,7 @@ class FineTuner:
 
         # Visualize the result ------------------------------------------------
         report_df = pd.DataFrame(report)
-        display(report_df)
+        #display(report_df)
 
         cm = confusion_matrix(all_labels, all_preds)
         plt.subplot(2, 2, 4)
