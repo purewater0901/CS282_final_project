@@ -1,4 +1,4 @@
-import sys, os
+import os
 from deep_learning.full_fine_tuner import FullFT
 
 if __name__ == "__main__":
