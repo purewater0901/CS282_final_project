@@ -33,7 +33,6 @@ class FineTuner:
         num_epochs,
         batch_size,
         learning_rate,
-        use_wandb=False,
         model=None,
         processor=None,
     ):
@@ -54,7 +53,6 @@ class FineTuner:
         self.num_epochs = num_epochs
         self.batch_size = batch_size
         self.learning_rate = learning_rate
-        self.use_wandb = use_wandb
         self.test_fake_folder = None
         self.processor = processor
 
@@ -260,26 +258,25 @@ class FineTuner:
         plt.show()
 
         # Logging
-        if self.use_wandb:
-            all_probs = np.array(all_probs)
-            fpr, tpr, _ = roc_curve(all_labels, all_probs[:, 1])
-            wandb.log(
-                {
-                    "test_dataset": test_folder,
-                    "test_accuracy": test_acc,
-                    # Confusion Matrix
-                    "test_confusion_matrix": wandb.plot.confusion_matrix(
-                        probs=None,
-                        y_true=all_labels,
-                        preds=all_preds,
-                        class_names=["Real", "Fake"],
-                    ),
-                    # ROC curve
-                    "test_roc_curve": wandb.plot.roc_curve(
-                        y_true=all_labels, y_probas=all_probs, labels=["Real", "Fake"]
-                    ),
-                }
-            )
+        all_probs = np.array(all_probs)
+        fpr, tpr, _ = roc_curve(all_labels, all_probs[:, 1])
+        wandb.log(
+            {
+                "test_dataset": test_folder,
+                "test_accuracy": test_acc,
+                # Confusion Matrix
+                "test_confusion_matrix": wandb.plot.confusion_matrix(
+                    probs=None,
+                    y_true=all_labels,
+                    preds=all_preds,
+                    class_names=["Real", "Fake"],
+                ),
+                # ROC curve
+                "test_roc_curve": wandb.plot.roc_curve(
+                    y_true=all_labels, y_probas=all_probs, labels=["Real", "Fake"]
+                ),
+            }
+        )
 
         return report_df
 
@@ -295,80 +292,59 @@ class FineTuner:
         val_acc,
         optimizer,
     ):
-        if self.use_wandb:
+        wandb.log(
+            {
+                "epoch": epoch + 1,
+                "train_loss": train_loss,
+                "train_accuracy": train_acc,
+                "val_loss": val_loss,
+                "val_accuracy": val_acc,
+                "learning_rate": optimizer.param_groups[0]["lr"],
+            }
+        )
+
+        # Extra logging for the last epoch
+        if epoch == self.num_epochs - 1:
+            # Confusion Matrix
+            cm = confusion_matrix(all_labels, all_preds)
             wandb.log(
                 {
-                    "epoch": epoch + 1,
-                    "train_loss": train_loss,
-                    "train_accuracy": train_acc,
-                    "val_loss": val_loss,
-                    "val_accuracy": val_acc,
-                    "learning_rate": optimizer.param_groups[0]["lr"],
+                    "confusion_matrix": wandb.plot.confusion_matrix(
+                        probs=None,
+                        y_true=all_labels,
+                        preds=all_preds,
+                        class_names=["Real", "Fake"],
+                    )
                 }
             )
 
-            # Extra logging for the last epoch
-            if epoch == self.num_epochs - 1 and self.use_wandb:
-                # Confusion Matrix
-                cm = confusion_matrix(all_labels, all_preds)
-                wandb.log(
-                    {
-                        "confusion_matrix": wandb.plot.confusion_matrix(
-                            probs=None,
-                            y_true=all_labels,
-                            preds=all_preds,
-                            class_names=["Real", "Fake"],
-                        )
-                    }
-                )
+            # ROC curve - use probs instead of preds
+            all_probs = np.array(all_probs)
+            fpr, tpr, _ = roc_curve(all_labels, all_probs[:, 1])
+            wandb.log(
+                {
+                    "roc_curve": wandb.plot.roc_curve(
+                        y_true=all_labels,
+                        y_probas=all_probs,
+                        labels=["Real", "Fake"],
+                    )
+                }
+            )
 
-                # ROC curve - use probs instead of preds
-                all_probs = np.array(all_probs)
-                fpr, tpr, _ = roc_curve(all_labels, all_probs[:, 1])
-                wandb.log(
-                    {
-                        "roc_curve": wandb.plot.roc_curve(
-                            y_true=all_labels,
-                            y_probas=all_probs,
-                            labels=["Real", "Fake"],
-                        )
-                    }
-                )
-
-    def Experiment(self, wandb_run_name):
+    def Experiment(self):
         # Initilize Wandb
-        if self.use_wandb:
-            wandb.init(project="Fine-Tuning Experiment", name=wandb_run_name)
-
-            # Log the experimental setting
-            wandb.config.update(
-                {
-                    "model": self.model_name,
-                    "batch_size": self.batch_size,
-                    "learning_rate": self.learning_rate,
-                    "num_epochs": self.num_epochs,
-                    "fine_tuning_type": "full",
-                    "dataset_dir": self.data_dir,
-                    "real_folder": self.real_folder,
-                    "fake_folder": self.fake_folder,
-                }
-            )
-
-            total_params = sum(p.numel() for p in self.model.parameters())
-            trainable_params = sum(
-                p.numel() for p in self.model.parameters() if p.requires_grad
-            )
-            wandb.log(
-                {
-                    "total_parameters": total_params,
-                    "trainable_parameters": trainable_params,
-                    "frozen_parameters": total_params - trainable_params,
-                    "percent_trainable": 100 * trainable_params / total_params,
-                }
-            )
-
-            # Log the model itself, (don't know if we need this or not)
-            # wandb.watch(self.model, log="all", log_freq=100)
+        total_params = sum(p.numel() for p in self.model.parameters())
+        trainable_params = sum(
+            p.numel() for p in self.model.parameters() if p.requires_grad
+        )
+        wandb.log(
+            {
+                "total_parameters": total_params,
+                "trainable_parameters": trainable_params,
+                "frozen_parameters": total_params - trainable_params,
+                "percent_trainable": 100 * trainable_params / total_params,
+            }
+        )
 
         # Fine-tune the model
         tuned_model = self.Tune()
@@ -376,12 +352,8 @@ class FineTuner:
         if self.test_fake_folder != None:
             report_df_unseen = self.Evaluation(self.test_fake_folder)
 
-        if self.use_wandb:
-            model_artifact = wandb.Artifact(
-                name=f"{self.method_name}-{self.model_name}", type="model"
-            )
-            # model_artifact.add_file(model_save_path)
-            wandb.log_artifact(model_artifact)
-            wandb.finish()
+        model_artifact = wandb.Artifact(name=f"{self.method_name}-{self.model_name}", type="model")
+        wandb.log_artifact(model_artifact)
+        wandb.finish()
 
         return tuned_model

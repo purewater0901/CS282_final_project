@@ -16,7 +16,6 @@ class FrozenFT(FineTuner):
         num_epochs,
         batch_size,
         learning_rate = None,
-        use_wandb=False,
         model=None,
         processor=None,
     ):
@@ -28,7 +27,6 @@ class FrozenFT(FineTuner):
             num_epochs,
             batch_size,
             learning_rate,
-            use_wandb,
             model,
             processor,
         )

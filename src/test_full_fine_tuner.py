@@ -13,7 +13,6 @@ if __name__ == "__main__":
         "num_epochs": 1,
         "batch_size": 16,
         "learning_rate": 0.00001,
-        "use_wandb": False,
     }
 
     FullFineTuner = FullFT(**config)

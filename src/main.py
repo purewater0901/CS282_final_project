@@ -2,6 +2,7 @@ import os
 import torch
 from transformers import CLIPProcessor
 import argparse
+import wandb
 
 from deep_learning.full_fine_tuner import FullFT
 from deep_learning.frozen_fine_tuner import FrozenFT
@@ -49,10 +50,16 @@ if __name__ == "__main__":
         "num_epochs": cfg.num_epochs,
         "batch_size": cfg.batch_size,
         "learning_rate": cfg.learning_rate,
-        "use_wandb": cfg.use_wandb,
         "model": model if model is not None else None,
         "processor": preprocess if preprocess is not None else None,
     }
+
+    # initialize wandb
+    project_name = "Fine-Tuning Experiment"
+    mode = "online" if cfg.use_wandb else "disabled"
+    group_name = cfg.tuning_type
+    run_name = cfg.model_name
+    wandb.init(project=project_name, group=group_name, name=run_name, config=config, mode=mode)
 
     tuner_cls = TUNER_CLASSES.get(cfg.tuning_type)
     if tuner_cls is None:
@@ -60,4 +67,4 @@ if __name__ == "__main__":
     tuner = tuner_cls(**config)
 
     tuner.set_TestFolder('firefly_split')
-    tuned_model = tuner.Experiment(wandb_run_name='swin_large_C1')
+    tuned_model = tuner.Experiment()

@@ -16,7 +16,6 @@ class FullFT(FineTuner):
         num_epochs,
         batch_size,
         learning_rate,
-        use_wandb=False,
         model=None,
         processor=None,
     ):
@@ -28,7 +27,6 @@ class FullFT(FineTuner):
             num_epochs,
             batch_size,
             learning_rate,
-            use_wandb,
             model,
             processor,
         )
@@ -44,7 +42,6 @@ class FullFT(FineTuner):
             num_epochs (int): Number of training epochs
             batch_size (int): Batch size for training
             learning_rate (float): Learning rate for optimizer
-            use_wandb (boolean): Use wandb's logging
         """
 
         # Set device
