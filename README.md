@@ -2,26 +2,16 @@
 
 This repository contains the code for the CS282 Final project.
 
-## 1. Dataset Setup
+## 1. Setup
 
-### Step 1: Download the dataset
-
-Download the dataset (ZIP file) from [this Kaggle link](https://www.kaggle.com/datasets/katsuyamucb/madde-dataset).
-
-### Step 2: Create the `data/` directory and extract the dataset
+### Step 1: Clone the repository
 
 ```bash
 git clone git@github.com:purewater0901/CS282_final_project.git
 cd CS282_final_project
-mkdir data && cd data
-unzip <path_to_downloaded_zip>
 ```
 
-## 2. Running the Code
-
-> ⚠️ Make sure you have downloaded the dataset as described above before running the code.
-
-### 1. Environment Setup
+### Step 2: Set up the environment
 
 ```bash
 conda create -n cs282 python=3.10 pip
@@ -31,12 +21,36 @@ pip install torch torchvision torchaudio transformers
 pip install timm
 ```
 
-### 2. Running code
+### Step 3: Create the `data/` folder and download the data
 
-- Classical machine learning approach (K-Nearest, SVM, Random Forest)
+```bash
+cd CS282_final_project
+mkdir data && cd data
+kaggle datasets download katsuyamucb/madde-dataset
+```
+
+## 2. Running the Code
+
+> ⚠️ Make sure you have downloaded the dataset as described above before running the code.
+
+### 1. Classical machine learning approach (K-Nearest, SVM, Random Forest)
 
 ```bash
 python src/non_deep_learning/ml_baselines.py --feature=<feature>
 ```
 
 Here `<feature>` can be `flatten` or `hog`. We set `flatten` as a default value in this problem.
+
+### 2.Deep Learning based approach
+
+```bash
+python src/main.py --config=config/<filename>
+```
+
+See `config` folder for the model that you want to use.
+
+Example:
+
+```bash
+python src/main.py --config config/efficient_net_full_tune.yaml
+```
