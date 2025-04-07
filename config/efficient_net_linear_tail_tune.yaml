@@ -1,0 +1,8 @@
+"tuning_type": "LinearTailFT"
+"model_name": "efficientnetv2_rw_m.agc_in1k"
+"real_folder": "Real_split"
+"fake_folder": "All_fakes_split"
+"num_epochs": 100
+"batch_size": 16
+"learning_rate": 0.0005
+"use_wandb": False

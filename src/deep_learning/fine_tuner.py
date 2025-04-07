@@ -58,6 +58,9 @@ class FineTuner:
         self.processor = processor
         self.device = device
 
+        # Move the model to the specified device
+        self.model = self.model.to(self.device)
+
     def set_TestFolder(self, test_fake_folder):
         self.test_fake_folder = test_fake_folder
 
@@ -181,7 +184,6 @@ class FineTuner:
 
         # Set model to evaluation mode
         self.model.eval()
-        model = self.model.to(self.device)
 
         # Lists to store results
         all_preds = []
@@ -196,7 +198,7 @@ class FineTuner:
                 inputs = inputs.to(self.device)
 
                 # Forward pass
-                outputs = model(inputs)
+                outputs = self.model(inputs)
 
                 # Convert outputs to probabilities
                 probs = (

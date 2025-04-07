@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import torch
 from transformers import CLIPProcessor
 import argparse
@@ -6,22 +7,30 @@ import wandb
 
 from deep_learning.full_fine_tuner import FullFT
 from deep_learning.frozen_fine_tuner import FrozenFT
+from deep_learning.linear_tail_fine_tuner import LinearTailFT
 from utils.config_parser import parse_cfg
-
-torch.set_float32_matmul_precision("high")
 
 TUNER_CLASSES = {
     "FrozenFT": FrozenFT,
     "FullFT": FullFT,
+    "LinearTailFT": LinearTailFT,
 }
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, required=True)
     parser.add_argument("--device", default="cuda:0", type=str)
+    parser.add_argument("--seed", default=42, type=int)
     cfg = parser.parse_args()
     cfg = parse_cfg(cfg, cfg.config)
     cfg.device = cfg.device if torch.cuda.is_available() else "cpu"
+
+    # set seed
+    np.random.seed(cfg.seed)
+    torch.manual_seed(cfg.seed)
+    torch.cuda.manual_seed_all(cfg.seed)
+    torch.backends.cudnn.benchmark = True
+    torch.set_float32_matmul_precision("high")
 
     # sets model if necessary
     model = None

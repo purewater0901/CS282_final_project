@@ -34,7 +34,7 @@ class FullFT(FineTuner):
         )
         self.method_name = "Full_FT"
 
-    def Tune(self):
+    def Tune(self, optimizer=None, model_save_path=None):
         """
         Args:
             data_dir (str): Directory containing 'train' and 'val' subdirectories,
@@ -49,16 +49,18 @@ class FullFT(FineTuner):
         # Set device
         print(f"Using device: {self.device}")
 
-        # Load the model
-        self.model = self.model.to(self.device)
-        model_save_path = f"{self.model_name}.pth"
+        if model_save_path is None:
+            model_save_path = f"full_tune_{self.model_name}.pth"
+
+        # Optimizer
+        if optimizer is None:
+            optimizer = optim.AdamW(self.model.parameters(), lr=self.learning_rate)
+
+        # Loss function
+        criterion = nn.CrossEntropyLoss()
 
         # Get data loader for training and validation
         train_loader, val_loader = self.get_Train_Val_loader()
-
-        # Loss function and optimizer
-        criterion = nn.CrossEntropyLoss()
-        optimizer = optim.AdamW(self.model.parameters(), lr=self.learning_rate)
 
         # Learning rate scheduler
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(
