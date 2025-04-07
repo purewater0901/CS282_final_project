@@ -21,16 +21,18 @@ if __name__ == "__main__":
     current_dir = os.getcwd()
     X_train, y_train, X_test, y_test = data_loader(current_dir, cfg)
 
-    k_neighbors = KNeighborsClassifier(n_neighbors=10)
+    #model = KNeighborsClassifier(n_neighbors=10)
+    model = SVC(kernel='rbf', C=100.0, gamma=0.001)
 
     param_grid = {
-        'n_neighbors': [10, 50, 100, 200, 300, 400, 500, 1000],
+        'C': [0.1, 1.0, 10.0, 100.0],
+        'gamma': [0.0001, 0.001, 0.01, 0.1, 1.0],
     }
 
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=SEED)
 
     grid_search = GridSearchCV(
-        k_neighbors, param_grid, cv=cv, scoring='accuracy', n_jobs=-1
+        model, param_grid, cv=cv, scoring='accuracy', n_jobs=-1
     )
 
     grid_search.fit(X_train, y_train)
