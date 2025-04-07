@@ -45,13 +45,14 @@ if __name__ == "__main__":
     config = {
         "model_name": cfg.model_name,
         "data_dir": os.path.join(os.getcwd(), "data"),  # Ensure the data directory is correct
-        "real_folder": "Real_split",
-        "fake_folder": "StyleGAN_split",
+        "real_folder": cfg.real_folder,
+        "fake_folder": cfg.fake_folder,
         "num_epochs": cfg.num_epochs,
         "batch_size": cfg.batch_size,
         "learning_rate": cfg.learning_rate,
         "model": model if model is not None else None,
         "processor": preprocess if preprocess is not None else None,
+        "device": cfg.device,
     }
 
     # initialize wandb
@@ -66,5 +67,5 @@ if __name__ == "__main__":
         raise ValueError(f"Unsupported Tuning Type: {cfg.tuning_type}")
     tuner = tuner_cls(**config)
 
-    tuner.set_TestFolder('firefly_split')
+    #tuner.set_TestFolder('firefly_split')
     tuned_model = tuner.Experiment()

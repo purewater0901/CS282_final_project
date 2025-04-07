@@ -18,6 +18,7 @@ class FrozenFT(FineTuner):
         learning_rate = None,
         model=None,
         processor=None,
+        device = "cpu"
     ):
         super().__init__(
             model_name,
@@ -29,6 +30,7 @@ class FrozenFT(FineTuner):
             learning_rate,
             model,
             processor,
+            device
         )
         self.method_name = "Frozen_FT"
 

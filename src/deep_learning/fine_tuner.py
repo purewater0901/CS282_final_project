@@ -35,6 +35,7 @@ class FineTuner:
         learning_rate,
         model=None,
         processor=None,
+        device = "cpu"
     ):
         self.model_name = model_name
 
@@ -55,6 +56,7 @@ class FineTuner:
         self.learning_rate = learning_rate
         self.test_fake_folder = None
         self.processor = processor
+        self.device = device
 
     def set_TestFolder(self, test_fake_folder):
         self.test_fake_folder = test_fake_folder
@@ -171,17 +173,15 @@ class FineTuner:
         pass
 
     def Evaluation(self, test_folder):
-        # Set device
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # Get dataloader
         test_loader = self.get_Test_loader(test_folder)
         print("\n\n----- Test on ", test_folder, "-----")
-        print(f"Device: {device}")
+        print(f"Device: {self.device}")
 
         # Set model to evaluation mode
         self.model.eval()
-        model = self.model.to(device)
+        model = self.model.to(self.device)
 
         # Lists to store results
         all_preds = []
@@ -193,7 +193,7 @@ class FineTuner:
         # Run inference
         with torch.no_grad():
             for inputs, labels, paths in tqdm(test_loader, desc="Testing"):
-                inputs = inputs.to(device)
+                inputs = inputs.to(self.device)
 
                 # Forward pass
                 outputs = model(inputs)

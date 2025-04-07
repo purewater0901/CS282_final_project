@@ -1,8 +1,8 @@
 "tuning_type": "FullFT"
 "model_name": "deep_fake_detection"
 "real_folder": "Real_split"
-"fake_folder": "StyleGAN_split"
-"num_epochs": 100
+"fake_folder": "All_fakes_split"
+"num_epochs": 20
 "batch_size": 16
-"learning_rate": 0.00005
+"learning_rate": 0.00008
 "use_wandb": False

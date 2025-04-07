@@ -18,6 +18,7 @@ class FullFT(FineTuner):
         learning_rate,
         model=None,
         processor=None,
+        device = "cpu"
     ):
         super().__init__(
             model_name,
@@ -29,6 +30,7 @@ class FullFT(FineTuner):
             learning_rate,
             model,
             processor,
+            device
         )
         self.method_name = "Full_FT"
 
@@ -45,12 +47,11 @@ class FullFT(FineTuner):
         """
 
         # Set device
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        print(f"Using device: {device}")
+        print(f"Using device: {self.device}")
 
         # Load the model
-        self.model = self.model.to(device)
-        model_save_path = f"weights/{self.model_name}.pth"
+        self.model = self.model.to(self.device)
+        model_save_path = f"{self.model_name}.pth"
 
         # Get data loader for training and validation
         train_loader, val_loader = self.get_Train_Val_loader()
@@ -83,7 +84,7 @@ class FullFT(FineTuner):
             total = 0
 
             for inputs, labels, pathes in train_loader:
-                inputs, labels = inputs.to(device), labels.to(device)
+                inputs, labels = inputs.to(self.device), labels.to(self.device)
 
                 # Zero the parameter gradients
                 optimizer.zero_grad()
@@ -119,7 +120,7 @@ class FullFT(FineTuner):
 
             with torch.no_grad():
                 for inputs, labels, pathes in val_loader:  # val_loop:
-                    inputs, labels = inputs.to(device), labels.to(device)
+                    inputs, labels = inputs.to(self.device), labels.to(self.device)
 
                     outputs = self.model(inputs)
                     loss = criterion(outputs, labels)
@@ -199,8 +200,8 @@ class FullFT(FineTuner):
             print(f"Current learning rate: {current_lr:.6f}")
 
             # Load the best model
-            print(f"Loading best model from {model_save_path}")
-            self.model.load_state_dict(torch.load(model_save_path))
+            #print(f"Loading best model from {model_save_path}")
+            #self.model.load_state_dict(torch.load(model_save_path))
 
             # Log in wandb
             self.log_wandb_train(
