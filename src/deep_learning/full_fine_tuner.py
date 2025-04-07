@@ -50,7 +50,7 @@ class FullFT(FineTuner):
 
         # Load the model
         self.model = self.model.to(device)
-        model_save_path = f"{self.model_name}.pth"
+        model_save_path = f"weights/{self.model_name}.pth"
 
         # Get data loader for training and validation
         train_loader, val_loader = self.get_Train_Val_loader()
