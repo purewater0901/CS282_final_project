@@ -13,7 +13,8 @@ class LinearTailFT(FullFT):
         learning_rate = None,
         model=None,
         processor=None,
-        device = "cpu"
+        device = "cpu",
+        **kwargs
     ):
         super().__init__(
             model_name,

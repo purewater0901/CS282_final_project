@@ -18,7 +18,8 @@ class FullFT(FineTuner):
         learning_rate,
         model=None,
         processor=None,
-        device = "cpu"
+        device = "cpu",
+        **kwargs
     ):
         super().__init__(
             model_name,

@@ -1,0 +1,15 @@
+"tuning_type": "LoraFT"
+"model_name": "efficientnetv2_rw_m.agc_in1k"
+"real_folder": "Real_split"
+"fake_folder": "All_fakes_split"
+"num_epochs": 20
+"batch_size": 16
+"learning_rate": 0.0005
+"use_wandb": False
+
+# Lora
+"r": 8
+"lora_alpha": 16
+"target_modules": ["conv_pw", "conv_dw"]
+"lora_dropout": 0.05
+"bias": "none"

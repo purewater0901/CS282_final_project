@@ -8,12 +8,14 @@ import wandb
 from deep_learning.full_fine_tuner import FullFT
 from deep_learning.frozen_fine_tuner import FrozenFT
 from deep_learning.linear_tail_fine_tuner import LinearTailFT
+from deep_learning.lora_fine_tuner import LoraFT
 from utils.config_parser import parse_cfg
 
 TUNER_CLASSES = {
     "FrozenFT": FrozenFT,
     "FullFT": FullFT,
     "LinearTailFT": LinearTailFT,
+    "LoraFT": LoraFT,
 }
 
 if __name__ == "__main__":
@@ -51,30 +53,21 @@ if __name__ == "__main__":
         preprocess = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
 
     # create config
-    config = {
-        "model_name": cfg.model_name,
-        "data_dir": os.path.join(os.getcwd(), "data"),  # Ensure the data directory is correct
-        "real_folder": cfg.real_folder,
-        "fake_folder": cfg.fake_folder,
-        "num_epochs": cfg.num_epochs,
-        "batch_size": cfg.batch_size,
-        "learning_rate": cfg.learning_rate,
-        "model": model if model is not None else None,
-        "processor": preprocess if preprocess is not None else None,
-        "device": cfg.device,
-    }
+    cfg.data_dir = os.path.join(os.getcwd(), "data")  # Ensure the data directory is correct
+    cfg.model = model if model is not None else None
+    cfg.processor = preprocess if preprocess is not None else None
 
     # initialize wandb
     project_name = "Fine-Tuning Experiment"
     mode = "online" if cfg.use_wandb else "disabled"
     group_name = cfg.tuning_type
     run_name = cfg.model_name
-    wandb.init(project=project_name, group=group_name, name=run_name, config=config, mode=mode)
+    wandb.init(project=project_name, group=group_name, name=run_name, config=cfg, mode=mode)
 
     tuner_cls = TUNER_CLASSES.get(cfg.tuning_type)
     if tuner_cls is None:
         raise ValueError(f"Unsupported Tuning Type: {cfg.tuning_type}")
-    tuner = tuner_cls(**config)
+    tuner = tuner_cls(**vars(cfg))
 
     #tuner.set_TestFolder('firefly_split')
     tuned_model = tuner.Experiment()
