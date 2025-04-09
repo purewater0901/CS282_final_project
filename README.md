@@ -16,9 +16,7 @@ cd CS282_final_project
 ```bash
 conda create -n cs282 python=3.10 pip
 conda activate cs282
-pip install scikit-learn numpy pandas opencv-python pillow matplotlib scikit-image wandb IPython kaggle
-pip install torch torchvision torchaudio transformers
-pip install timm peft
+pip install -r requirements.txt
 ```
 
 ### Step 3: Create the `data/` folder and download the data
