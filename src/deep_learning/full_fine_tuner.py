@@ -93,7 +93,10 @@ class FullFT(FineTuner):
                 optimizer.zero_grad()
 
                 # Forward pass
-                outputs = self.model(inputs).float()
+                if self.model_name == "deepfake_detection":
+                    outputs = self.model(inputs).logits_labels.float()
+                else:
+                    outputs = self.model(inputs).float()
                 loss = criterion(outputs, labels)
 
                 # Backward pass and optimize
@@ -125,7 +128,10 @@ class FullFT(FineTuner):
                 for inputs, labels, pathes in val_loader:  # val_loop:
                     inputs, labels = inputs.to(self.device), labels.to(self.device)
 
-                    outputs = self.model(inputs)
+                    if self.model_name == "deepfake_detection":
+                        outputs = self.model(inputs).logits_labels
+                    else:
+                        outputs = self.model(inputs)
                     loss = criterion(outputs, labels)
 
                     val_running_loss += loss.item() * inputs.size(0)

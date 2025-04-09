@@ -1,5 +1,5 @@
 "tuning_type": "FullFT"
-"model_name": "deep_fake_detection"
+"model_name": "deepfake_detection"
 "real_folder": "Real_split"
 "fake_folder": "All_fakes_split"
 "num_epochs": 20

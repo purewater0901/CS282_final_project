@@ -1,0 +1,15 @@
+"tuning_type": "LoraFT"
+"model_name": "deepfake_detection"
+"real_folder": "Real_split"
+"fake_folder": "All_fakes_split"
+"num_epochs": 20
+"batch_size": 16
+"learning_rate": 0.0005
+"use_wandb": False
+
+# Lora
+"r": 8
+"lora_alpha": 16
+"target_modules": ["self_attn.q_proj", "self_attn.v_proj"]
+"lora_dropout": 0.05
+"bias": "none"

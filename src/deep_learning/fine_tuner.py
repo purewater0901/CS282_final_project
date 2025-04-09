@@ -198,7 +198,10 @@ class FineTuner:
                 inputs = inputs.to(self.device)
 
                 # Forward pass
-                outputs = self.model(inputs)
+                if self.model_name == "deepfake_detection":
+                        outputs = self.model(inputs).logits_labels
+                else:
+                    outputs = self.model(inputs)
 
                 # Convert outputs to probabilities
                 probs = (

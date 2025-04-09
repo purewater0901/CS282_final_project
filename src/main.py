@@ -11,6 +11,9 @@ from deep_learning.linear_tail_fine_tuner import LinearTailFT
 from deep_learning.lora_fine_tuner import LoraFT
 from utils.config_parser import parse_cfg
 
+from deepfake_detection.model.dfdet import DeepfakeDetectionModel
+from deepfake_detection.config import Config
+
 TUNER_CLASSES = {
     "FrozenFT": FrozenFT,
     "FullFT": FullFT,
@@ -37,20 +40,19 @@ if __name__ == "__main__":
     # sets model if necessary
     model = None
     preprocess = None
-    if cfg.model_name == "deep_fake_detection":
-        # Check if weights/model.torchscript exists, if not, download it from huggingface
-        model_file = "weights/model.torchscript"
-        model_path = os.path.join(os.getcwd(), model_file)
+    if cfg.model_name == "deepfake_detection":
+        model_path = "weights/model.ckpt"
         if not os.path.exists(model_path):
             print("Downloading model")
             os.makedirs("weights", exist_ok=True)
-            os.system(f"wget https://huggingface.co/yermandy/deepfake-detection/resolve/main/model.torchscript -O {model_path}")
+            os.system(f"wget https://huggingface.co/yermandy/deepfake-detection/resolve/main/model.ckpt -O {model_path}")
+        ckpt = torch.load(model_path, map_location="cpu")
 
-        # Load checkpoint
-        model = torch.jit.load(model_path, map_location=cfg.device)
+        model = DeepfakeDetectionModel(Config(**ckpt["hyper_parameters"]))
+        model.load_state_dict(ckpt["state_dict"])
 
-        # Load preprocessing function
-        preprocess = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
+        # Get preprocessing function
+        preprocessing = model.get_preprocessing()
 
     # create config
     cfg.data_dir = os.path.join(os.getcwd(), "data")  # Ensure the data directory is correct
