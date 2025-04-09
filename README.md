@@ -27,6 +27,7 @@ pip install timm peft
 cd CS282_final_project
 mkdir data && cd data
 kaggle datasets download katsuyamucb/madde-dataset
+unzip madde-dataset.zip
 ```
 
 ## 2. Running the Code
