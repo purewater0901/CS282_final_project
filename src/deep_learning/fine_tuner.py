@@ -48,6 +48,10 @@ class FineTuner:
         else:
             self.model = model
 
+        # unfreeze all weights and biases
+        for param in self.model.parameters():
+            param.requires_grad = True
+
         self.data_dir = data_dir
         self.real_folder = real_folder
         self.fake_folder = fake_folder
