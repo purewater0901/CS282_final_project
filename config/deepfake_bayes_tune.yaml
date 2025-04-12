@@ -1,0 +1,9 @@
+"tuning_type": "BayesFT"
+"model_name": "deepfake_detection"
+"real_folder": "Real_split"
+"fake_folder": "All_fakes_split"
+"num_epochs": 1
+"batch_size": 4
+"learning_rate": 0.0005
+"use_wandb": False
+"spartsity_level": 0.05
