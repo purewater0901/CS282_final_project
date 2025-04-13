@@ -11,6 +11,7 @@ from deep_learning.linear_tail_fine_tuner import LinearTailFT
 from deep_learning.lora_fine_tuner import LoraFT
 from deep_learning.bayes_tuner import BayesTune
 from utils.config_parser import parse_cfg
+import matplotlib.pyplot as plt
 
 from deepfake_detection.model.dfdet import DeepfakeDetectionModel
 from deepfake_detection.config import Config
@@ -57,8 +58,7 @@ if cfg.model_name == "deepfake_detection":
     model.load_state_dict(ckpt["state_dict"])
 
     # Get preprocessing function
-    preprocessing = model.get_preprocessing()
-    #preprocess = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch14", use_fast = True)
+    preprocess = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
 
 # create config
 cfg.data_dir = os.path.join(os.getcwd(), "data")  # Ensure the data directory is correct
@@ -77,5 +77,8 @@ if tuner_cls is None:
     raise ValueError(f"Unsupported Tuning Type: {cfg.tuning_type}")
 tuner = tuner_cls(**vars(cfg))
 
-#tuned_model = tuner.Experiment()
-tuned_model = tuner.Tune()
+
+tuned_model = tuner.Experiment()
+#tuned_model = tuner.unfreeze_selected_layers()
+#lambdas = tuner.get_posterior_stats()
+#a = tuner.Tune()

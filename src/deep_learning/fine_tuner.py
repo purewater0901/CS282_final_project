@@ -49,8 +49,9 @@ class FineTuner:
             self.model = model
 
         # unfreeze all weights and biases
-        for param in self.model.parameters():
-            param.requires_grad = True
+        self.unfreeze_all_layers()
+        #for param in self.model.parameters():
+        #    param.requires_grad = True
 
         self.data_dir = data_dir
         self.real_folder = real_folder
@@ -71,6 +72,7 @@ class FineTuner:
     def get_Train_Val_loader(self):
 
         if self.processor:
+            print('Using processor...')
             train_dataset = DeepfakeDataset(
                 root_dir=self.data_dir,
                 real_folder=os.path.join(self.real_folder, "Train"),
@@ -85,6 +87,7 @@ class FineTuner:
                 processor=self.processor,
             )
         else:
+            print('No processor found, using timm transforms...')
             # Get the config file from timm
             config = resolve_data_config({}, model=self.model)
             base_transform = create_transform(**config)
@@ -174,6 +177,24 @@ class FineTuner:
         )
 
         return data_loader
+
+    def freeze_all_layers(self):
+        # Freeze all layers
+        for param in self.model.parameters():
+            param.requires_grad = False
+
+    def unfreeze_all_layers(self):
+        # Unfreeze all layers
+        for param in self.model.parameters():
+            param.requires_grad = True
+    
+    def count_trainable_params(self):
+        # Count trainable parameters
+        c = 0
+        for param in self.model.parameters():  
+            if param.requires_grad:
+                c += param.numel()
+        return c
 
     def Tune(self):
         # function to override

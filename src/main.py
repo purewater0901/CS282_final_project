@@ -9,6 +9,7 @@ from deep_learning.full_fine_tuner import FullFT
 from deep_learning.frozen_fine_tuner import FrozenFT
 from deep_learning.linear_tail_fine_tuner import LinearTailFT
 from deep_learning.lora_fine_tuner import LoraFT
+from deep_learning.bayes_tuner import BayesTune
 from utils.config_parser import parse_cfg
 
 from deepfake_detection.model.dfdet import DeepfakeDetectionModel
@@ -19,6 +20,7 @@ TUNER_CLASSES = {
     "FullFT": FullFT,
     "LinearTailFT": LinearTailFT,
     "LoraFT": LoraFT,
+    "BayesFT": BayesTune
 }
 
 if __name__ == "__main__":
@@ -52,7 +54,8 @@ if __name__ == "__main__":
         model.load_state_dict(ckpt["state_dict"])
 
         # Get preprocessing function
-        preprocessing = model.get_preprocessing()
+        #preprocessing = model.get_preprocessing()
+        preprocess = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
 
     # create config
     cfg.data_dir = os.path.join(os.getcwd(), "data")  # Ensure the data directory is correct
