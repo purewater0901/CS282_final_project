@@ -74,5 +74,4 @@ if __name__ == "__main__":
         raise ValueError(f"Unsupported Tuning Type: {cfg.tuning_type}")
     tuner = tuner_cls(**vars(cfg))
 
-    #tuner.set_TestFolder('firefly_split')
     tuned_model = tuner.Experiment()

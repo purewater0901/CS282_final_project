@@ -72,7 +72,7 @@ class FineTuner:
     def get_Train_Val_loader(self):
 
         if self.processor:
-            print('Using processor...')
+            print('Using the pre-loaded processor...')
             train_dataset = DeepfakeDataset(
                 root_dir=self.data_dir,
                 real_folder=os.path.join(self.real_folder, "Train"),
@@ -300,10 +300,14 @@ class FineTuner:
                     y_true=all_labels,
                     preds=all_preds,
                     class_names=["Real", "Fake"],
+                    title="Test Confusion Matrix"
                 ),
                 # ROC curve
                 "test_roc_curve": wandb.plot.roc_curve(
-                    y_true=all_labels, y_probas=all_probs, labels=["Real", "Fake"]
+                    y_true=all_labels,
+                    y_probas=all_probs, 
+                    labels=["Real", "Fake"],
+                    title = "Test ROC Curve"
                 ),
             }
         )
@@ -344,6 +348,7 @@ class FineTuner:
                         y_true=all_labels,
                         preds=all_preds,
                         class_names=["Real", "Fake"],
+                        title="Training Confusion Matrix",
                     )
                 }
             )
@@ -357,16 +362,21 @@ class FineTuner:
                         y_true=all_labels,
                         y_probas=all_probs,
                         labels=["Real", "Fake"],
+                        title="Training ROC Curve",
                     )
                 }
             )
 
     def Experiment(self):
-        # Initilize Wandb
+        # Fine-tune the model
+        tuned_model = self.Tune()
+        report_df_seen = self.Evaluation(self.fake_folder)
+        if self.test_fake_folder != None:
+            report_df_unseen = self.Evaluation(self.test_fake_folder)
+        
+        # Log Wandb
         total_params = sum(p.numel() for p in self.model.parameters())
-        trainable_params = sum(
-            p.numel() for p in self.model.parameters() if p.requires_grad
-        )
+        trainable_params = self.count_trainable_params()
         wandb.log(
             {
                 "total_parameters": total_params,
@@ -375,13 +385,6 @@ class FineTuner:
                 "percent_trainable": 100 * trainable_params / total_params,
             }
         )
-
-        # Fine-tune the model
-        tuned_model = self.Tune()
-        report_df_seen = self.Evaluation(self.fake_folder)
-        if self.test_fake_folder != None:
-            report_df_unseen = self.Evaluation(self.test_fake_folder)
-
         model_artifact = wandb.Artifact(name=f"{self.method_name}-{self.model_name}", type="model")
         wandb.log_artifact(model_artifact)
         wandb.finish()
