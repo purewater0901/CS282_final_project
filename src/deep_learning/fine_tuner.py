@@ -67,7 +67,12 @@ class FineTuner:
     def set_TestFolder(self, test_fake_folder):
         self.test_fake_folder = test_fake_folder
 
-    def get_Train_Val_loader(self):
+    def get_Train_Val_loader(self, custom_batch_size=None):
+        # Config batch size if necessary
+        if custom_batch_size is None:
+            batch_size = self.batch_size
+        else:
+            batch_size = custom_batch_size
 
         if self.processor:
             print('Using the pre-loaded processor...')
@@ -128,14 +133,14 @@ class FineTuner:
         # Create data loaders
         train_loader = DataLoader(
             train_dataset,
-            batch_size=self.batch_size,
+            batch_size=batch_size,
             shuffle=True,
             num_workers=4,
             pin_memory=True,
         )
         val_loader = DataLoader(
             val_dataset,
-            batch_size=self.batch_size,
+            batch_size=batch_size,
             shuffle=False,
             num_workers=4,
             pin_memory=True,

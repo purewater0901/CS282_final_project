@@ -42,11 +42,12 @@ class BayesTune(FullFT):
         self.sparsity_level = kwargs.get('sparsity_level')
         self.lr_model= kwargs.get('lr_model')
         self.lr_lambda= kwargs.get('lr_lambda')
-        self.num_epochs_posterior= kwargs.get('num_epochs_posterior')
+        self.num_epochs_sampling= kwargs.get('num_epochs_sampling')
         self.N_exp= kwargs.get('N_exp')
         self.burnin_steps= kwargs.get('burnin_steps')
         self.thinning_steps= kwargs.get('thinning_steps')
         self.warmup_steps= kwargs.get('warmup_steps')
+        self.batch_size_sampling = kwargs.get('batch_size_sampling')
         
         # Get all parameter names from the model
         self.group_names = [name for name, _ in self.model.named_parameters()]
@@ -105,14 +106,14 @@ class BayesTune(FullFT):
         global_step = 0
 
         # Get data loader
-        train_loader, _ = self.get_Train_Val_loader()
+        train_loader, _ = self.get_Train_Val_loader(custom_batch_size=self.batch_size_sampling)
 
         # Stochastic Gradient Langevin Dynamics!!!
         print("Sampling with SGLD...")
-        for epoch in range(self.num_epochs_posterior):
+        for epoch in range(self.num_epochs_sampling):
             self.model.train()
             
-            for images, labels, pathes in tqdm(train_loader, desc=f"Epoch {epoch+1}/{self.num_epochs_posterior}"):
+            for images, labels, pathes in tqdm(train_loader, desc=f"Epoch {epoch+1}/{self.num_epochs_sampling}"):
                 global_step += 1 # not counting epoch, but counting stochastic trails
                 
                 # Move batch to device
@@ -219,14 +220,14 @@ class BayesTune(FullFT):
         torch.save({
             'running_mean': lambda_stats['running_mean'],
             'group_names': self.group_names
-        }, "bayes_tune_lambda_stats_new.pt")
+        }, "bayes_tune_lambda_stats.pt")
 
         return lambda_stats
         
 
     def Tune(self):
         # Get posterior stats
-        stats_file = "bayes_tune_lambda_stats_new.pt"
+        stats_file = "bayes_tune_lambda_stats.pt"
         if os.path.exists(stats_file):
             print(f"Loading lambda stats from {stats_file}")
             lambda_stats = torch.load(stats_file, map_location=self.device)

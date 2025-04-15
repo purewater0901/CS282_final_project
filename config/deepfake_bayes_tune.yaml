@@ -2,8 +2,18 @@
 "model_name": "deepfake_detection"
 "real_folder": "Real_split"
 "fake_folder": "All_fakes_split"
-"num_epochs": 1
-"batch_size": 4
+"num_epochs": 10
+"batch_size": 16
 "learning_rate": 0.0005
-"use_wandb": False
-"spartsity_level": 0.05
+"use_wandb": True
+
+# BayesTune Parameters
+"sparsity_level": 0.0006
+"lr_model": 0.0005
+"lr_lambda": 0.0005
+"N_exp": 12
+"burnin_steps": 2000
+"thinning_steps": 25
+"warmup_steps": 1000
+"num_epochs_sampling": 10
+"batch_size_sampling": 4
