@@ -48,7 +48,7 @@ class FineTuner:
         else:
             self.model = model
 
-        # unfreeze all weights and biases
+        # Unfreeze all layers at the beginning
         self.unfreeze_all_layers()
 
         self.data_dir = data_dir

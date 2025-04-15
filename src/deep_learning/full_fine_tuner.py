@@ -46,7 +46,9 @@ class FullFT(FineTuner):
             batch_size (int): Batch size for training
             learning_rate (float): Learning rate for optimizer
         """
-
+        # Print trainable parameters
+        self.model.print_trainable_parameters()
+        
         # Set device
         print(f"Using device: {self.device}")
 

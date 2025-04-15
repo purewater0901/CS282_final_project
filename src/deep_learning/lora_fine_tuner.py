@@ -40,9 +40,12 @@ class LoraFT(FullFT):
         )
 
     def Tune(self):
+        # Freeze all layers
+        self.freeze_all_layers()
+
         self.model = get_peft_model(self.model, self.lora_config)
         print("Lora model loaded")
-        self.model.print_trainable_parameters()
+        #self.model.print_trainable_parameters()
 
         optimizer = optim.AdamW(filter(lambda p: p.requires_grad, self.model.parameters()), lr=self.learning_rate)
         model_save_path = f"lora_tune_{self.model_name}.pth"
