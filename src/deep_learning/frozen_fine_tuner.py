@@ -35,9 +35,13 @@ class FrozenFT(FineTuner):
         )
         self.method_name = "Frozen_FT"
 
-        for param in self.model.parameters():
-            param.requires_grad_(False)
-        self.model.print_trainable_parameters()
+
+        
 
     def Tune(self):
+        # Freeze all layers
+        self.freeze_all_layers()
+
+        self.model.print_trainable_parameters()
+        
         return self.model

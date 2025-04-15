@@ -32,14 +32,16 @@ class LinearTailFT(FullFT):
 
     def Tune(self):
         # freeze all layers
-        for param in self.model.parameters():
-            param.requires_grad = False
+        self.freeze_all_layers()
 
         # enable training for the last layer
-        for param in self.model.get_classifier().parameters():
+        #for param in self.model.get_classifier().parameters(): -> This gives an error... no attribute 'get_classifier'
+        #    param.requires_grad = True
+
+        for param in self.model.model.parameters():
             param.requires_grad = True
 
-        optimizer = optim.AdamW(self.model.get_classifier().parameters(), lr=self.learning_rate)
+        optimizer = optim.AdamW(self.model.model.parameters(), lr=self.learning_rate)
         model_save_path = f"linear_tail_tune_{self.model_name}.pth"
 
         return super().Tune(optimizer=optimizer, model_save_path=model_save_path)
