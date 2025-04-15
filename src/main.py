@@ -10,6 +10,7 @@ from deep_learning.frozen_fine_tuner import FrozenFT
 from deep_learning.linear_tail_fine_tuner import LinearTailFT
 from deep_learning.lora_fine_tuner import LoraFT
 from deep_learning.bayes_tuner import BayesTune
+from deep_learning.ln_fine_tuner import LNFT
 from utils.config_parser import parse_cfg
 
 from deepfake_detection.model.dfdet import DeepfakeDetectionModel
@@ -20,7 +21,8 @@ TUNER_CLASSES = {
     "FullFT": FullFT,
     "LinearTailFT": LinearTailFT,
     "LoraFT": LoraFT,
-    "BayesFT": BayesTune
+    "BayesFT": BayesTune,
+    "LNFT": LNFT,
 }
 
 if __name__ == "__main__":

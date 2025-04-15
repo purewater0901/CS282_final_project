@@ -1,0 +1,11 @@
+"tuning_type": "LNFT"
+"model_name": "deepfake_detection"
+"real_folder": "Real_split"
+"fake_folder": "All_fakes_split"
+"num_epochs": 20
+"batch_size": 16
+"learning_rate": 0.0005
+"use_wandb": False
+
+# LN Tuner
+"target_modules": [ "pre_layrnorm", "layer_norm1", "layer_norm2", "post_layernorm", "layernorm"]
