@@ -208,10 +208,6 @@ class FullFT(FineTuner):
             current_lr = optimizer.param_groups[0]["lr"]
             print(f"Current learning rate: {current_lr:.6f}")
 
-            # Load the best model
-            #print(f"Loading best model from {model_save_path}")
-            #self.model.load_state_dict(torch.load(model_save_path))
-
             # Log in wandb
             self.log_wandb_train(
                 all_labels,
@@ -228,5 +224,9 @@ class FullFT(FineTuner):
         # Final summary at the end of training
         tqdm.write(f"\nTraining completed after {self.num_epochs} epochs")
         tqdm.write(f"Best validation accuracy: {best_val_acc:.4f}")
+
+        # Load the best model before testing
+        print(f"Loading best model from {model_save_path}")
+        self.model.load_state_dict(torch.load(model_save_path))
 
         return self.model

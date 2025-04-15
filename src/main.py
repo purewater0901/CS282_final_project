@@ -54,8 +54,7 @@ if __name__ == "__main__":
         model.load_state_dict(ckpt["state_dict"])
 
         # Get preprocessing function
-        #preprocessing = model.get_preprocessing()
-        preprocess = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
+        preprocess = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14", use_fast = True)
 
     # create config
     cfg.data_dir = os.path.join(os.getcwd(), "data")  # Ensure the data directory is correct
