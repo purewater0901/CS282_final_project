@@ -57,7 +57,8 @@ class DeepfakeDataset(Dataset):
             if self.transform:
                 image = self.transform(image)
             elif self.processor:
-                image = self.processor(images=image, return_tensors="pt")["pixel_values"].squeeze(0)
+                #image = self.processor(image=image, return_tensors="pt")["pixel_values"].squeeze(0)
+                image = self.processor(image)
                 # processor returns dictionary, so reduce dimension here
 
             return image, label, img_path

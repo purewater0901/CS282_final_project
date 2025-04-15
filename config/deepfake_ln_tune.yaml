@@ -8,4 +8,4 @@
 "use_wandb": False
 
 # LN Tuner
-"target_modules": [ "pre_layrnorm", "layer_norm1", "layer_norm2", "post_layernorm", "layernorm"]
+"target_modules": ["pre_layrnorm", "layer_norm1", "layer_norm2", "post_layernorm", "layernorm"]
