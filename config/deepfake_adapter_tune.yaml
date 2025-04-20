@@ -1,0 +1,13 @@
+"tuning_type": "Adapter_FT"
+"model_name": "deepfake_detection"
+"real_folder": "Real_split"
+"fake_folder": "All_fakes_split"
+"num_epochs": 10
+"batch_size": 16
+"learning_rate": 0.0005
+"use_wandb": False
+
+# Adapter Parameters
+"hidden_dim": 1024
+"bottleneck": 2048
+"dropout": 0.1
