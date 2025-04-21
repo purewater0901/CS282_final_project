@@ -1,0 +1,10 @@
+"tuning_type": "IntrinsicSAIDFT"
+"model_name": "deepfake_detection"
+"real_folder": "Real_split"
+"fake_folder": "All_fakes_split"
+"num_epochs": 20
+"batch_size": 16
+"learning_rate": 0.0005
+"use_wandb": False
+
+"intrinsic_dim": 2000
