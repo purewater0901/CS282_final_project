@@ -70,7 +70,7 @@ if __name__ == "__main__":
     project_name = "Fine-Tuning Experiment"
     mode = "online" if cfg.use_wandb else "disabled"
     group_name = cfg.tuning_type
-    run_name = cfg.model_name
+    run_name = f"{cfg.model_name}_{cfg.tuning_type}" # Update run name
     wandb.init(project=project_name, group=group_name, name=run_name, config=cfg, mode=mode)
 
     tuner_cls = TUNER_CLASSES.get(cfg.tuning_type)
