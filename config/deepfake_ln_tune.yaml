@@ -1,7 +1,7 @@
 "tuning_type": "LNFT"
 "model_name": "deepfake_detection"
-"real_folder": "Real_split"
-"fake_folder": "All_fakes_split"
+"real_folder": ['Real_4k_split', 'Real_1k_split']
+"fake_folder": ['StableDiffusion_split', 'StyleGAN2_split', 'Midjourney_split', 'firefly_split', 'Dall-E_split']
 "num_epochs": 20
 "batch_size": 16
 "learning_rate": 0.0005

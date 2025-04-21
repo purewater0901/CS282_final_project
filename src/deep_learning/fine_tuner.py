@@ -57,6 +57,7 @@ class FineTuner:
         self.num_epochs = num_epochs
         self.batch_size = batch_size
         self.learning_rate = learning_rate
+        self.test_real_folder = None
         self.test_fake_folder = None
         self.processor = processor
         self.device = device
@@ -64,8 +65,9 @@ class FineTuner:
         # Move the model to the specified device
         self.model = self.model.to(self.device)
 
-    def set_TestFolder(self, test_fake_folder):
+    def set_TestFolder(self, test_real_folder, test_fake_folder):
         self.test_fake_folder = test_fake_folder
+        self.test_real_folder = test_real_folder
 
     def get_Train_Val_loader(self, custom_batch_size=None):
         # Config batch size if necessary
@@ -78,15 +80,15 @@ class FineTuner:
             print('Using the pre-loaded processor...')
             train_dataset = DeepfakeDataset(
                 root_dir=self.data_dir,
-                real_folder=os.path.join(self.real_folder, "Train"),
-                fake_folder=os.path.join(self.fake_folder, "Train"),
+                real_folder=[os.path.join(folder, "Train") for folder in self.real_folder], 
+                fake_folder=[os.path.join(folder, "Train") for folder in self.fake_folder],
                 processor=self.processor,
             )
 
             val_dataset = DeepfakeDataset(
                 root_dir=self.data_dir,
-                real_folder=os.path.join(self.real_folder, "Validation"),
-                fake_folder=os.path.join(self.fake_folder, "Validation"),
+                real_folder=[os.path.join(folder, "Validation") for folder in self.real_folder],
+                fake_folder=[os.path.join(folder, "Validation") for folder in self.fake_folder],
                 processor=self.processor,
             )
         else:
@@ -119,14 +121,14 @@ class FineTuner:
             # Create datasets
             train_dataset = DeepfakeDataset(
                 root_dir=self.data_dir,
-                real_folder=os.path.join(self.real_folder, "Train"),
-                fake_folder=os.path.join(self.fake_folder, "Train"),
+                real_folder=[os.path.join(folder, "Train") for folder in self.real_folder], 
+                fake_folder=[os.path.join(folder, "Train") for folder in self.fake_folder],
                 transform=train_transform,
             )
             val_dataset = DeepfakeDataset(
                 root_dir=self.data_dir,
-                real_folder=os.path.join(self.real_folder, "Validation"),
-                fake_folder=os.path.join(self.fake_folder, "Validation"),
+                real_folder=[os.path.join(folder, "Validation") for folder in self.real_folder],
+                fake_folder=[os.path.join(folder, "Validation") for folder in self.fake_folder],
                 transform=val_transform,
             )
 
@@ -147,14 +149,24 @@ class FineTuner:
         )
         return train_loader, val_loader
 
-    def get_Test_loader(self, test_folder):
-        target = test_folder
+    def get_Test_loader(self, OOT_test =False):
+
+        test_folder = self.test_fake_folder if OOT_test else self.fake_folder
+
+        if OOT_test:
+        # Use full images from the folders for OOT testing
+            real_folder = [os.path.join(self.test_real_folder[0], 'Train'), os.path.join(self.test_real_folder[0], 'Validation'), os.path.join(self.test_real_folder[0], 'Test')]
+            fake_folder = [os.path.join(test_folder[0], "Train"), os.path.join(test_folder[0], "Validation"), os.path.join(test_folder[0], "Test")]
+        else:
+            real_folder=[os.path.join(folder, "Test") for folder in self.real_folder]
+            fake_folder=[os.path.join(folder, "Test") for folder in test_folder]
+ 
         if self.processor:
             # Create dataset
             dataset = DeepfakeDataset(
                 root_dir=self.data_dir,
-                real_folder=os.path.join(self.real_folder, "Test"),
-                fake_folder=os.path.join(target, "Test"),
+                real_folder=real_folder,
+                fake_folder=fake_folder,
                 processor=self.processor,
             )
         else:
@@ -165,8 +177,8 @@ class FineTuner:
             # Create dataset
             dataset = DeepfakeDataset(
                 root_dir=self.data_dir,
-                real_folder=os.path.join(self.real_folder, "Test"),
-                fake_folder=os.path.join(target, "Test"),
+                real_folder=real_folder,
+                fake_folder=fake_folder,
                 transform=base_transform,
             )
 
@@ -203,12 +215,17 @@ class FineTuner:
         # function to override
         pass
 
-    def Evaluation(self, test_folder):
+    def Evaluation(self, OOT_test = False):
 
         # Get dataloader
-        test_loader = self.get_Test_loader(test_folder)
-        print("\n\n----- Test on ", test_folder, "-----")
-        print(f"Device: {self.device}")
+        test_loader = self.get_Test_loader(OOT_test=OOT_test) 
+ 
+        test_folder = self.test_fake_folder if OOT_test else self.fake_folder
+ 
+        if OOT_test:
+            print("\n\n----- OOT Test on ",self.test_real_folder,', ', test_folder, "-----")
+        else:
+            print("\n\n----- Test on ",self.real_folder,', ', test_folder, "-----")
 
         # Set model to evaluation mode
         self.model.eval()
@@ -293,27 +310,50 @@ class FineTuner:
         # Logging
         all_probs = np.array(all_probs)
         fpr, tpr, _ = roc_curve(all_labels, all_probs[:, 1])
-        wandb.log(
-            {
-                "test_dataset": test_folder,
-                "test_accuracy": test_acc,
-                # Confusion Matrix
-                "test_confusion_matrix": wandb.plot.confusion_matrix(
-                    probs=None,
-                    y_true=all_labels,
-                    preds=all_preds,
-                    class_names=["Real", "Fake"],
-                    title="Test Confusion Matrix"
-                ),
-                # ROC curve
-                "test_roc_curve": wandb.plot.roc_curve(
-                    y_true=all_labels,
-                    y_probas=all_probs, 
-                    labels=["Real", "Fake"],
-                    title = "Test ROC Curve"
-                ),
-            }
-        )
+        if OOT_test:
+            wandb.log(
+                {
+                    "OOT_test_dataset": test_folder,
+                    "OOT_test_accuracy": test_acc,
+                    # Confusion Matrix
+                    "OOT_test_confusion_matrix": wandb.plot.confusion_matrix(
+                        probs=None,
+                        y_true=all_labels,
+                        preds=all_preds,
+                        class_names=["Real", "Fake"],
+                        title="OOT Test Confusion Matrix"
+                    ),
+                    # ROC curve
+                    "OOT_test_roc_curve": wandb.plot.roc_curve(
+                        y_true=all_labels,
+                        y_probas=all_probs, 
+                        labels=["Real", "Fake"],
+                        title = "OOT Test ROC Curve"
+                    ),
+                }
+            )
+        else:
+            wandb.log(
+                {
+                    "test_dataset": test_folder,
+                    "test_accuracy": test_acc,
+                    # Confusion Matrix
+                    "test_confusion_matrix": wandb.plot.confusion_matrix(
+                        probs=None,
+                        y_true=all_labels,
+                        preds=all_preds,
+                        class_names=["Real", "Fake"],
+                        title="Test Confusion Matrix"
+                    ),
+                    # ROC curve
+                    "test_roc_curve": wandb.plot.roc_curve(
+                        y_true=all_labels,
+                        y_probas=all_probs, 
+                        labels=["Real", "Fake"],
+                        title = "Test ROC Curve"
+                    ),
+                }
+            )
 
         return report_df
 
@@ -373,9 +413,9 @@ class FineTuner:
     def Experiment(self):
         # Fine-tune the model
         tuned_model = self.Tune()
-        report_df_seen = self.Evaluation(self.fake_folder)
+        report_df_seen = self.Evaluation()
         if self.test_fake_folder != None:
-            report_df_unseen = self.Evaluation(self.test_fake_folder)
+            report_df_unseen = self.Evaluation(OOT_test=True)
         
         # Log Wandb
         total_params = sum(p.numel() for p in self.model.parameters())
