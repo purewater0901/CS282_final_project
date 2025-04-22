@@ -9,6 +9,7 @@ from deep_learning.full_fine_tuner import FullFT
 from deep_learning.frozen_fine_tuner import FrozenFT
 from deep_learning.linear_tail_fine_tuner import LinearTailFT
 from deep_learning.lora_fine_tuner import LoraFT
+from deep_learning.vera_fine_tuner import VeraFT
 from deep_learning.bayes_tuner import BayesTune
 from deep_learning.ln_fine_tuner import LNFT
 from deep_learning.adapter_tuner import Adapter_FT
@@ -22,6 +23,7 @@ TUNER_CLASSES = {
     "FullFT": FullFT,
     "LinearTailFT": LinearTailFT,
     "LoraFT": LoraFT,
+    "VeraFT": VeraFT,
     "BayesFT": BayesTune,
     "LNFT": LNFT,
     "Adapter_FT": Adapter_FT,
