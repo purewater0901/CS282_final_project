@@ -1,0 +1,14 @@
+"tuning_type": "VeraFT"
+"model_name": "deepfake_detection"
+"real_folder": ['Real_4k_split', 'Real_1k_split']
+"fake_folder": ['StableDiffusion_split', 'StyleGAN2_split', 'Midjourney_split', 'firefly_split', 'Dall-E_split']
+"num_epochs": 20
+"batch_size": 16
+"learning_rate": 0.0005
+"use_wandb": False
+
+# Vera
+"r": 8
+"target_modules": ["self_attn.q_proj", "self_attn.v_proj"]
+"vera_dropout": 0.05
+"bias": "none"
