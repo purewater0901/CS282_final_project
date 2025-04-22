@@ -39,6 +39,10 @@ class LNFT(FullFT):
 
     def Tune(self):
         self.freeze_all_layers()
+        
+        # Unfreeze the linear classifier layer
+        for param in self.model.model.parameters():
+            param.requires_grad = True
 
         self.model = get_peft_model(self.model, self.ln_config)
         print("Layer Norm model loaded")

@@ -78,17 +78,15 @@ class FullFT(FineTuner):
         best_val_acc = 0.0
 
         # Create a tqdm progress bar for epochs
-        epoch_loop = tqdm(
-            range(self.num_epochs), desc="Training Progress", unit="epoch"
-        )
-        for epoch in epoch_loop:
+
+        for epoch in range(self.num_epochs):
             # Training phase
             self.model.train()
             running_loss = 0.0
             correct = 0
             total = 0
 
-            for inputs, labels, pathes in train_loader:
+            for inputs, labels, pathes in tqdm(train_loader, desc=f"Epoch {epoch+1}/{self.num_epochs}"): #train_loader:
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
 
                 # Zero the parameter gradients
