@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+import random
 import wandb
 import matplotlib.pyplot as plt
 from tqdm.auto import tqdm
@@ -61,6 +62,7 @@ class FineTuner:
         self.test_fake_folder = None
         self.processor = processor
         self.device = device
+        self.seed = 42
 
         # Move the model to the specified device
         self.model = self.model.to(self.device)
@@ -68,6 +70,12 @@ class FineTuner:
     def set_TestFolder(self, test_real_folder, test_fake_folder):
         self.test_fake_folder = test_fake_folder
         self.test_real_folder = test_real_folder
+
+    def seed_worker(self, worker_id):
+        """Set random seed for dataloader workers"""
+        worker_seed = torch.initial_seed() % 2**32
+        np.random.seed(worker_seed)
+        random.seed(worker_seed)
 
     def get_Train_Val_loader(self, custom_batch_size=None):
         # Config batch size if necessary
@@ -132,12 +140,18 @@ class FineTuner:
                 transform=val_transform,
             )
 
+        # To control workers
+        g = torch.Generator()
+        g.manual_seed(self.seed)
+
         # Create data loaders
         train_loader = DataLoader(
             train_dataset,
             batch_size=batch_size,
             shuffle=True,
             num_workers=4,
+            worker_init_fn=self.seed_worker,
+            generator=g,
             pin_memory=True,
         )
         val_loader = DataLoader(
@@ -145,6 +159,8 @@ class FineTuner:
             batch_size=batch_size,
             shuffle=False,
             num_workers=4,
+            worker_init_fn=self.seed_worker,
+            generator=g,
             pin_memory=True,
         )
         return train_loader, val_loader
@@ -182,12 +198,18 @@ class FineTuner:
                 transform=base_transform,
             )
 
+        # To control workers
+        g = torch.Generator()
+        g.manual_seed(self.seed)
+
         # Create data loader
         data_loader = DataLoader(
             dataset,
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=4,
+            worker_init_fn=self.seed_worker,
+            generator=g,
             pin_memory=True,
         )
 
