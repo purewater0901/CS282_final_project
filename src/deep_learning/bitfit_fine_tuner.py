@@ -1,24 +1,44 @@
+from deep_learning.full_fine_tuner import FullFT
+
 class BitfitFT(FullFT):
-    def __init__(self, model_name, data_dir, real_folder, fake_folder, num_epochs, batch_size, learning_rate, use_wandb= False, model = None, processor = None):
-        super().__init__(model_name, data_dir, real_folder, fake_folder, num_epochs, batch_size, learning_rate, use_wandb, model, processor)
-        for param in self.model.parameters():
-            param.requires_grad = False
+    def __init__(
+        self, 
+        model_name,
+        data_dir,
+        real_folder,
+        fake_folder,
+        num_epochs,
+        batch_size,
+        learning_rate = None,
+        model=None,
+        processor=None,
+        device = "cpu",
+        **kwargs
+    ):
+        super().__init__(
+            model_name,
+            data_dir,
+            real_folder,
+            fake_folder,
+            num_epochs,
+            batch_size,
+            learning_rate,
+            model,
+            processor,
+            device
+        )
+        self.method_name = "Bitfit_FT"
+
+    def Tune(self):
+        self.freeze_all_layers()
+
         for name, param in self.model.named_parameters():
             if ".bias" in name:
                 param.requires_grad = True
-        for name, param in self.model.classifier.named_parameters():
+
+        # Unfreeze the linear classifier layer
+        for param in self.model.model.parameters():
             param.requires_grad = True
 
-    def Tune(self):
-        """
-        Args:
-            data_dir (str): Directory containing 'train' and 'val' subdirectories,
-                            each with 'real' and 'fake' subdirectories
-            real_folder:
-            fake_folder:
-            num_epochs (int): Number of training epochs
-            batch_size (int): Batch size for training
-            learning_rate (float): Learning rate for optimizer
-            use_wandb (boolean): Use wandb's logging
-        """
-        return super().Tune()
+        model_save_path = f"bitfit_tune_{self.model_name}.pth"
+        return super().Tune(model_save_path=model_save_path)

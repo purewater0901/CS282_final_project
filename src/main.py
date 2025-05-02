@@ -13,6 +13,7 @@ from deep_learning.vera_fine_tuner import VeraFT
 from deep_learning.bayes_tuner import BayesTune
 from deep_learning.ln_fine_tuner import LNFT
 from deep_learning.adapter_tuner import Adapter_FT
+from deep_learning.bitfit_fine_tuner import BitfitFT
 from utils.config_parser import parse_cfg
 
 from deepfake_detection.model.dfdet import DeepfakeDetectionModel
@@ -27,6 +28,7 @@ TUNER_CLASSES = {
     "BayesFT": BayesTune,
     "LNFT": LNFT,
     "Adapter_FT": Adapter_FT,
+    "BitfitFT": BitfitFT,
 }
 
 if __name__ == "__main__":
