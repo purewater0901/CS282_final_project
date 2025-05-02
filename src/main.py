@@ -46,7 +46,6 @@ if __name__ == "__main__":
     torch.cuda.manual_seed_all(cfg.seed)
     torch.backends.cudnn.deterministic = True # Added this
     torch.backends.cudnn.benchmark = False  # Change this to False
-    torch.use_deterministic_algorithms(True, warn_only=False)  # Added this
     torch.set_float32_matmul_precision("high")
 
     # sets model if necessary
