@@ -19,13 +19,29 @@ conda activate cs282
 pip install -r requirements.txt
 ```
 
-### Step 3: Create the `data/` folder and download the data
+### Step 3: Download the dataset
+> [!Warning]
+> Since a small portion of our dataset is owned by the organization the authors belong to and is not allowed to publically share, the following dataset is set to be private for now.
+> For reproduction, please reach out to `k.masaki@berkeley.edu` to get access the dataset. Sorry for the inconvenience.
 
+First you need to create/login your Kaggle dataset, and once you got the access to our dataset, please run
 ```bash
 cd CS282_final_project
-mkdir data && cd data
-kaggle datasets download katsuyamucb/madde-dataset
-unzip madde-dataset.zip
+mkdir data
+echo 'export PATH=/opt/pytorch/bin:$PATH' >> ~/.bashrc # To run pytorch on the dataset
+```
+
+Run a downloading script;
+```python
+import kagglehub
+import os
+
+# Set target download directory
+os.environ["KAGGLEHUB_CACHE_DIR"] = os.path.expanduser("~/CS282_final_project/data")
+# Download latest version
+path = kagglehub.dataset_download("katsuyamucb/madde-dataset")
+
+print("Path to dataset files:", path)
 ```
 
 ## 2. Running the Code
